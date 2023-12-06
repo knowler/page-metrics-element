@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en-ca">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Page Metrics Element Demonstration</title>
+    <style>
+      * { box-sizing: border-box; }
+
+      html {
+        color-scheme: light dark;
+        font-family: system-ui;
+        color: white;
+      }
+      
+      body { margin: 0; }
+
+      section {
+        height: 100dvh;
+        display: grid;
+        padding: 1rem;
+        gap: 1rem;
+
+        &:nth-of-type(odd) {
+          background-color: DeepPink;
+        }
+
+        &:nth-of-type(even) {
+          background-color: DodgerBlue;
+        }
+
+        &:first-of-type {
+          background-color: Canvas;
+          color: CanvasText;
+          align-content: start;
+
+          & > * {
+            margin-block: 0;
+          }
+        }
+
+        &:not(:first-of-type) {
+          place-content: center;
+          font-size: 3rem;
+          font-variation-settings: "wdth" 150, "wght" 850;
+          text-transform: uppercase;
+          letter-spacing: 0.2ex;
+          color: hsl(0 0% 100% / 0.4);
+        }
+      }
+    </style>
+    <script type="module">
+      import { PageMetricsElement} from "./page-metrics-element.js?raw";
+
+      PageMetricsElement.define();
+
+      const pageMetricsElement = document.querySelector("page-metrics");
+
+      window.visualViewport.addEventListener("resize", event => {
+        const { addressBarState, smallViewportHeight, largeViewportHeight } = pageMetricsElement;
+        console.log({
+          addressBarState,
+          smallViewportHeight,
+          largeViewportHeight,
+          height: event.target.height,
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Page Metrics Element</h1>
+        <p>Open your console to see the metrics on resize. If you can observe the console for your phone or a simulated mobile device and scroll the page.</p>
+      </section>
+      <section>Section</section>
+      <section>Section</section>
+      <section>Section</section>
+      <section>Section</section>
+    </main>
+    <page-metrics></page-metrics>
+  </body>
+</html>
