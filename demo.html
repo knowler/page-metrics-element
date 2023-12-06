@@ -52,18 +52,84 @@
     <script type="module">
       import { PageMetricsElement} from "./page-metrics-element.js?raw";
 
-      PageMetricsElement.define();
+      window.customElements.define("page-metrics-display", class extends HTMLElement {
+        static {
+          this.styleSheet = new CSSStyleSheet();
+          this.styleSheet.replaceSync(`
+            :host {
+              display: contents;
+            }
 
-      const pageMetricsElement = document.querySelector("page-metrics");
+            article {
+              box-sizing: border-box;
+              position: fixed;
+              width: min(calc(100% - 2rem), 20rem);
+              inset-block-end: 1rem;
+              inset-inset-end: 1rem;
+              padding: 1rem;
+              background-color: CanvasText;
+              color: Canvas;
 
-      window.visualViewport.addEventListener("resize", event => {
-        const { addressBarState, smallViewportHeight, largeViewportHeight } = pageMetricsElement;
-        console.log({
-          addressBarState,
-          smallViewportHeight,
-          largeViewportHeight,
-          height: event.target.height,
-        });
+
+              & > h2 {
+                margin-block-start: 0;
+                font-size: 1.25rem;
+              }
+
+              & div {
+                display: flex;
+                justify-content: space-between;
+              }
+            }
+
+            dl {
+              margin-block-end: 0;
+            }
+
+            dd, dt {
+              display: inline-block;
+            }
+          `);
+          PageMetricsElement.define();
+        }
+
+        get pageMetricsElement() {
+          return this.querySelector(":scope > page-metrics");
+        }
+
+        connectedCallback() {
+          if (!this.shadowRoot) {
+            this.attachShadow({ mode: "open" });
+            this.shadowRoot.adoptedStyleSheets = [this.constructor.styleSheet];
+            this.render();
+          }
+          window.visualViewport.addEventListener("resize", this);
+        }
+
+        render() {
+          this.shadowRoot.innerHTML = `
+            <article>
+              <h2>Viewport Metrics</h2>
+              <dl>
+                <div><dt>Height</dt> <dd>${window.visualViewport.height}</dd></div>
+                <div><dt>Small Viewport Height</dt> <dd>${this.pageMetricsElement.smallViewportHeight}</dd></div>
+                <div><dt>Large Viewport Height</dt> <dd>${this.pageMetricsElement.largeViewportHeight}</dd></div>
+                <div><dt>Address Bar State</dt> <dd>${this.pageMetricsElement.addressBarState}</dd></div>
+              </dl>
+            </article>
+          `;
+        }
+
+        handleEvent(event) {
+          const { addressBarState, smallViewportHeight, largeViewportHeight } = this.pageMetricsElement;
+          console.log({
+            addressBarState,
+            smallViewportHeight,
+            largeViewportHeight,
+            height: event.target.height,
+          });
+          this.render();
+        }
       });
     </script>
   </head>
@@ -72,12 +138,14 @@
       <section>
         <h1>Page Metrics Element</h1>
         <p>Open your console to see the metrics on resize. If you can observe the console for your phone or a simulated mobile device and scroll the page.</p>
+        <page-metrics-display>
+          <page-metrics></page-metrics>
+        </page-metrics-display>
       </section>
       <section>Section</section>
       <section>Section</section>
       <section>Section</section>
       <section>Section</section>
     </main>
-    <page-metrics></page-metrics>
   </body>
 </html>
